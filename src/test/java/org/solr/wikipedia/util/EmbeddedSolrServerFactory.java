@@ -1,6 +1,7 @@
 package org.solr.wikipedia.util;
 
-import org.apache.solr.client.solrj.SolrServer;
+//import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
 import org.apache.solr.core.CoreDescriptor;
@@ -28,7 +29,7 @@ public class EmbeddedSolrServerFactory {
      * @param coreName
      * @return
      */
-    public static SolrServer create(String coreName) {
+    public static SolrClient create(String coreName) {
         return create(DEFAULT_SOLR_HOME, DEFAULT_CORE_HOME,
                 coreName, DEFAULT_DATA_DIR);
     }
@@ -45,7 +46,7 @@ public class EmbeddedSolrServerFactory {
      *
      * @return an EmbeddedSolrServer for the given core
      */
-    public static SolrServer create(String solrHome, String coreHome, String coreName, String dataDir) {
+    public static SolrClient create(String solrHome, String coreHome, String coreName, String dataDir) {
         File coreDataDir = new File(dataDir + "/" + coreName);
         if (coreDataDir.exists()) {
             coreDataDir.delete();
@@ -56,12 +57,13 @@ public class EmbeddedSolrServerFactory {
 
         Properties props = new Properties();
         props.setProperty("dataDir", dataDir + "/" + coreName);
+        
+        //CoreDescriptor descriptor = new CoreDescriptor(coreName,
+        //        new File(coreHome, coreName).getAbsolutePath(), props, false);
 
-        CoreDescriptor descriptor = new CoreDescriptor(coreContainer, coreName,
-                new File(coreHome, coreName).getAbsolutePath(), props);
-
-        SolrCore solrCore = coreContainer.create(descriptor);
-        coreContainer.register(solrCore, false);
+        //SolrCore solrCore = coreContainer.create(descriptor);
+        //coreContainer.register(solrCore, false);
+        
         return new EmbeddedSolrServer(coreContainer, coreName);
     }
 }

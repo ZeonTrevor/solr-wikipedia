@@ -1,11 +1,10 @@
 package org.solr.wikipedia.indexer;
 
-import com.google.common.collect.Multimap;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.lang3.Validate;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient.Builder;
 import org.apache.solr.common.SolrInputDocument;
 import org.solr.wikipedia.handler.DefaultPageHandler;
 import org.solr.wikipedia.iterator.SolrInputDocPageIterator;
@@ -13,12 +12,16 @@ import org.solr.wikipedia.iterator.WikiMediaIterator;
 import org.solr.wikipedia.model.Page;
 
 import javax.xml.stream.XMLStreamException;
+
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Indexes Pages in Solr.
@@ -30,14 +33,17 @@ public class DefaultIndexer {
     static final int DEFAULT_BATCH_SIZE = 20;
 
     private final int batchSize;
-    private final SolrServer solrServer;
-
+    private final HttpSolrClient solrServer;
+    private final String redirectsFile;
+    
+    private List<String> redirectPageIds;
+    
     /**
      *
      * @param solrServer
      */
-    public DefaultIndexer(SolrServer solrServer) {
-        this(solrServer, DEFAULT_BATCH_SIZE);
+    public DefaultIndexer(HttpSolrClient solrServer, String redirectsFile) {
+        this(solrServer, redirectsFile, DEFAULT_BATCH_SIZE);
     }
 
     /**
@@ -45,13 +51,15 @@ public class DefaultIndexer {
      * @param solrServer
      * @param batchSize
      */
-    public DefaultIndexer(SolrServer solrServer, int batchSize) {
+    public DefaultIndexer(HttpSolrClient solrServer, String redirectsFile, int batchSize) {
         this.solrServer = solrServer;
         this.batchSize = batchSize;
+        this.redirectsFile = redirectsFile;
         Validate.notNull(this.solrServer);
         if (this.batchSize <= 0) {
             throw new IllegalStateException("Batch size must be > 0");
         }
+        loadWikiRedirects();
     }
 
     /**
@@ -71,41 +79,68 @@ public class DefaultIndexer {
         Collection<SolrInputDocument> solrDocs = new ArrayList<>();
         while(docs.hasNext()) {
             SolrInputDocument doc = docs.next();
-            solrDocs.add(doc);
+            String id = (String) doc.getFieldValue(IndexField.id.name());
+            if(!redirectPageIds.contains(id))
+            	solrDocs.add(doc);
 
             if (solrDocs.size() >= this.batchSize) {
                 count += solrDocs.size();
                 System.out.println("reached batch size, total count = " + count);
                 solrServer.add(solrDocs);
+                solrServer.commit();
                 solrDocs.clear();
             }
         }
 
         if (solrDocs.size() > 0) {
             solrServer.add(solrDocs);
+            solrServer.commit();
             solrDocs.clear();
         }
     }
 
+	public void loadWikiRedirects()
+	{
+		redirectPageIds = new ArrayList<String>();
+		try
+		{
+		String fileLocation = redirectsFile;//"files/wiki_redirects.txt.gz";
+		GZIPInputStream inputStream = new GZIPInputStream(new FileInputStream(new File(fileLocation)));
+		BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+		String line = null;
+
+		while((line = br.readLine()) != null)
+			redirectPageIds.add(line);
+
+		br.close();
+		}
+		catch(IOException e)
+		{
+			System.err.println("Error while loading wiki redirects list from file");
+		}
+		System.out.println("Total no. of wiki redirects page ids loaded: " + redirectPageIds.size());
+	}
 
     public static void main(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Usage: DefaultIndexer <SOLR_URL> <WIKIPEDIA_DUMP_FILE> " +
+        if (args.length < 3) {
+            System.out.println("Usage: DefaultIndexer <SOLR_URL> <WIKIPEDIA_DUMP_FILE> <REDIRECT_COMPRESSED_FILE>" +
                     "(<BATCH_SIZE>)");
             System.exit(0);
         }
 
         String solrUrl = args[0];
         String wikimediaDumpFile = args[1];
-
+        String redirectsFile = args[2];
+        
         Validate.notEmpty(solrUrl);
         Validate.notEmpty(wikimediaDumpFile);
-
+        Validate.notEmpty(redirectsFile);
+        
         // attempt to parse a provided batch size
         Integer batchSize = null;
-        if (args.length == 3) {
+        if (args.length == 4) {
             try {
-                batchSize = Integer.valueOf(args[2]);
+                batchSize = Integer.valueOf(args[3]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -121,11 +156,11 @@ public class DefaultIndexer {
             Iterator<SolrInputDocument> docIter =
                     new SolrInputDocPageIterator(pageIter);
 
-            SolrServer solrServer = new HttpSolrServer(solrUrl);
+            HttpSolrClient solrServer = new Builder(solrUrl).build();
 
             DefaultIndexer defaultIndexer = (batchSize != null ?
-                    new DefaultIndexer(solrServer, batchSize) :
-                    new DefaultIndexer(solrServer));
+                    new DefaultIndexer(solrServer, redirectsFile, batchSize) :
+                    new DefaultIndexer(solrServer, redirectsFile));
 
             long startTime = System.currentTimeMillis();
 

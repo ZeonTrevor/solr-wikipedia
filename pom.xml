@@ -31,7 +31,7 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>4.9.0</version>
+            <version>7.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-core</artifactId>
-            <version>4.9.0</version>
+            <version>7.1.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

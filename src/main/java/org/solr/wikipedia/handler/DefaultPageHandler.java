@@ -69,6 +69,8 @@ public class DefaultPageHandler implements PageHandler<Page> {
         if (contributorBuilder != null) {
         	contributorBuilder.id(Integer.parseInt(id));
         }
+        else
+        	pageBuilder.id(id);
     }
 
     @Override

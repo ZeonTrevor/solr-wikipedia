@@ -1,7 +1,9 @@
 package org.solr.wikipedia.indexer;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
@@ -25,19 +27,24 @@ import java.util.Iterator;
  */
 public class DefaultIndexerTest {
 
-    private SolrServer solrServer;
+    private SolrClient solrServer;
 
     private DefaultIndexer defaultIndexer;
 
     @Before
     public void setup() {
         this.solrServer = EmbeddedSolrServerFactory.create("wikipediaCollection");
-        this.defaultIndexer = new DefaultIndexer(solrServer);
+        this.defaultIndexer = new DefaultIndexer((HttpSolrClient) solrServer, "");
     }
 
     @After
     public void after() {
-        this.solrServer.shutdown();
+        //this.solrServer.shutdown();
+    	try {
+			this.solrServer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
 
     @Test

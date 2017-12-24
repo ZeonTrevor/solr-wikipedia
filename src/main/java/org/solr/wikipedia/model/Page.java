@@ -15,11 +15,14 @@ import java.util.List;
 public class Page {
 
     private final String title;
-
+    
+    private final String id;
+    
     private final List<Revision> revisions;
 
     private Page(PageBuilder builder) {
         this.title = builder.title;
+        this.id = builder.id;
         this.revisions = builder.revisions;
         Validate.notEmpty(title);
         Validate.notEmpty(revisions);
@@ -29,6 +32,10 @@ public class Page {
         return title;
     }
 
+    public String getId() {
+    	return id;
+    }
+    
     public List<Revision> getRevisions() {
         return this.revisions;
     }
@@ -37,6 +44,7 @@ public class Page {
     public int hashCode() {
         return new HashCodeBuilder(17, 37).
                 append(title).
+                append(id).
                 append(revisions).
                 toHashCode();
     }
@@ -52,13 +60,14 @@ public class Page {
         Page that = (Page) obj;
         return new EqualsBuilder()
                 .append(this.title, that.title)
+                .append(this.id, that.id)
                 .append(this.revisions, that.revisions)
                 .isEquals();
     }
 
     @Override
     public String toString() {
-        return "Page [title = " + title + "]";
+        return "Page [title = " + title + ", id = " + id + "]";
     }
 
     /**
@@ -66,12 +75,18 @@ public class Page {
      */
     public static class PageBuilder {
         private String title;
+        private String id;
         private List<Revision> revisions;
 
-        public PageBuilder title(String title) {
+       public PageBuilder title(String title) {
             this.title = title;
             return this;
         }
+       
+       public PageBuilder id(String id) {
+    	   this.id = id;
+    	   return this;
+       }
 
         public PageBuilder revision(Revision revision) {
             if (this.revisions == null) {
