@@ -15,6 +15,7 @@ public class WikiMediaTestData {
 
         handler.startPage();
         handler.title("AfghanistanGeography");
+        handler.id("14");
         handler.startRevision();
         handler.text("#REDIRECT [[Geography of Afghanistan]] {{R from CamelCase}}");
         handler.timestamp("2011-01-10T03:56:19Z");
@@ -27,6 +28,7 @@ public class WikiMediaTestData {
 
         handler.startPage();
         handler.title("AfghanistanPeople");
+        handler.id("15");
         handler.startRevision();
         handler.text("#REDIRECT [[Demography of Afghanistan]] {{R from CamelCase}}");
         handler.timestamp("2007-06-01T13:59:37Z");
