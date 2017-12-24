@@ -1,0 +1,14 @@
+<add>
+    <doc>
+        <field name="TITLE">AfghanistanGeography</field>
+        <field name="id">14</field>
+		<field name="REVISION_TEXT">Afghanistan Geography</field>
+		<field name="REVISION_TIMESTAMP">2011-01-10T03:56:19Z</field>
+    </doc>
+    <doc>
+    	<field name="TITLE">AfghanistanPeople</field>
+        <field name="id">15</field>
+		<field name="REVISION_TEXT">Demography of Afghanistan</field>
+		<field name="REVISION_TIMESTAMP">2007-06-01T13:59:37Z</field>
+    </doc>
+</add>
