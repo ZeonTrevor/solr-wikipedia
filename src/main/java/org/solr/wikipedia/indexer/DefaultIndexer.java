@@ -76,16 +76,23 @@ public class DefaultIndexer {
         }
 
         long count = 0;
+        long redirectCount = 0;
         Collection<SolrInputDocument> solrDocs = new ArrayList<>();
         while(docs.hasNext()) {
             SolrInputDocument doc = docs.next();
             //String id = (String) doc.getFieldValue(IndexField.id.name());
             //if(!redirectPageIds.contains(id))
-            solrDocs.add(doc);
+            boolean isRedirect = (boolean) doc.getFieldValue("redirect");
+            if(!isRedirect)
+            {	doc.removeField("redirect");
+            	solrDocs.add(doc);
+            }
+            else
+            	redirectCount++;
 
             if (solrDocs.size() >= this.batchSize) {
                 count += solrDocs.size();
-                System.out.println("reached batch size, total count = " + count);
+                System.out.println("reached batch size, total count = " + count + ", number of redirects skipped = " + redirectCount);
                 solrServer.add(solrDocs);
                 solrServer.commit();
                 solrDocs.clear();
@@ -93,6 +100,8 @@ public class DefaultIndexer {
         }
 
         if (solrDocs.size() > 0) {
+        	count += solrDocs.size();
+        	System.out.println("last batch, total count = " + count + ", number of redirects skipped = " + redirectCount);
             solrServer.add(solrDocs);
             solrServer.commit();
             solrDocs.clear();
@@ -122,7 +131,7 @@ public class DefaultIndexer {
 	}
 
     public static void main(String[] args) {
-        if (args.length < 3) {
+        if (args.length < 2) {
             System.out.println("Usage: DefaultIndexer <SOLR_URL> <WIKIPEDIA_DUMP_FILE> <REDIRECT_COMPRESSED_FILE>" +
                     "(<BATCH_SIZE>)");
             System.exit(0);

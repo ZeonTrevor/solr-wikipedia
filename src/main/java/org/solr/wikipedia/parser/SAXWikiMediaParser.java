@@ -112,6 +112,9 @@ public class SAXWikiMediaParser<T> implements WikiMediaXMLParser<T> {
                         String username = buffer.toString();
                         handler.username(username.trim());
                         break;
+                    case redirect:
+                    	handler.redirect(true);
+                    	break;
                     default:
                         break;
                 }

@@ -29,7 +29,7 @@ public class PageMultimap {
         //        page.getTitle().getBytes()));
         multimap.put(IndexField.id.name(), page.getId());
         multimap.put(IndexField.TITLE.name(), page.getTitle());
-
+        multimap.put("redirect", page.isRedirect());
         for(Revision rev : page.getRevisions()) {
             multimap.put(IndexField.REVISION_TIMESTAMP.name(), rev.getTimestamp());
             multimap.put(IndexField.REVISION_TEXT.name(), rev.getText());

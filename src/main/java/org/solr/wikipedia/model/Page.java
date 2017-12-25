@@ -18,11 +18,14 @@ public class Page {
     
     private final String id;
     
+    private final boolean redirect;
+    
     private final List<Revision> revisions;
 
     private Page(PageBuilder builder) {
         this.title = builder.title;
         this.id = builder.id;
+        this.redirect = builder.redirect;
         this.revisions = builder.revisions;
         Validate.notEmpty(title);
         Validate.notEmpty(revisions);
@@ -36,6 +39,10 @@ public class Page {
     	return id;
     }
     
+    public boolean isRedirect() {
+    	return redirect;
+    }
+    
     public List<Revision> getRevisions() {
         return this.revisions;
     }
@@ -45,6 +52,7 @@ public class Page {
         return new HashCodeBuilder(17, 37).
                 append(title).
                 append(id).
+                append(redirect).
                 append(revisions).
                 toHashCode();
     }
@@ -61,13 +69,14 @@ public class Page {
         return new EqualsBuilder()
                 .append(this.title, that.title)
                 .append(this.id, that.id)
+                .append(this.redirect, that.redirect)
                 .append(this.revisions, that.revisions)
                 .isEquals();
     }
 
     @Override
     public String toString() {
-        return "Page [title = " + title + ", id = " + id + "]";
+        return "Page [title = " + title + ", id = " + id + ", redirect = " + redirect + "]";
     }
 
     /**
@@ -76,6 +85,7 @@ public class Page {
     public static class PageBuilder {
         private String title;
         private String id;
+        private boolean redirect;
         private List<Revision> revisions;
 
        public PageBuilder title(String title) {
@@ -88,6 +98,11 @@ public class Page {
     	   return this;
        }
 
+       public PageBuilder redirect(boolean redirect) {
+    	   this.redirect = redirect;
+    	   return this;
+       }
+       
         public PageBuilder revision(Revision revision) {
             if (this.revisions == null) {
                 this.revisions = new ArrayList<>();

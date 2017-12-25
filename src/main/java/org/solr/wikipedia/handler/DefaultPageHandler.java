@@ -32,6 +32,11 @@ public class DefaultPageHandler implements PageHandler<Page> {
     }
 
     @Override
+    public void redirect(boolean redirect) {
+    	pageBuilder.redirect(redirect);
+    }
+    
+    @Override
     public void startRevision() {
         revisionBuilder = new RevisionBuilder();
     }

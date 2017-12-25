@@ -6,6 +6,8 @@ public interface PageHandler<T> {
 
     public void title(String title);
 
+    public void redirect(boolean redirect);
+    
     public void startRevision();
 
     public void timestamp(String timestamp);

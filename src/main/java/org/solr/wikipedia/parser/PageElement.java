@@ -14,6 +14,6 @@ public enum PageElement {
     timestamp,
     contributor,
     id,
-    username;
-
+    username,
+    redirect;
 }

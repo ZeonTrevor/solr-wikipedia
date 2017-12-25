@@ -173,6 +173,9 @@ public class WikiMediaIterator<T> implements Iterator<T> {
                 case username:
                     handler.username(elementText);
                     break;
+                case redirect:
+                	handler.redirect(true);
+                	break;
                 default:
                     break;
             }
