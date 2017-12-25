@@ -30,7 +30,7 @@ import java.util.zip.GZIPInputStream;
  */
 public class DefaultIndexer {
 
-    static final int DEFAULT_BATCH_SIZE = 20;
+    static final int DEFAULT_BATCH_SIZE = 40;
 
     private final int batchSize;
     private final HttpSolrClient solrServer;
@@ -59,7 +59,7 @@ public class DefaultIndexer {
         if (this.batchSize <= 0) {
             throw new IllegalStateException("Batch size must be > 0");
         }
-        loadWikiRedirects();
+        //loadWikiRedirects();
     }
 
     /**
@@ -79,9 +79,9 @@ public class DefaultIndexer {
         Collection<SolrInputDocument> solrDocs = new ArrayList<>();
         while(docs.hasNext()) {
             SolrInputDocument doc = docs.next();
-            String id = (String) doc.getFieldValue(IndexField.id.name());
-            if(!redirectPageIds.contains(id))
-            	solrDocs.add(doc);
+            //String id = (String) doc.getFieldValue(IndexField.id.name());
+            //if(!redirectPageIds.contains(id))
+            solrDocs.add(doc);
 
             if (solrDocs.size() >= this.batchSize) {
                 count += solrDocs.size();
@@ -130,17 +130,17 @@ public class DefaultIndexer {
 
         String solrUrl = args[0];
         String wikimediaDumpFile = args[1];
-        String redirectsFile = args[2];
-        
+        //String redirectsFile = args[2];
+        String redirectsFile ="";
         Validate.notEmpty(solrUrl);
         Validate.notEmpty(wikimediaDumpFile);
-        Validate.notEmpty(redirectsFile);
+        //Validate.notEmpty(redirectsFile);
         
         // attempt to parse a provided batch size
         Integer batchSize = null;
-        if (args.length == 4) {
+        if (args.length == 3) {
             try {
-                batchSize = Integer.valueOf(args[3]);
+                batchSize = Integer.valueOf(args[2]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
